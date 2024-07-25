@@ -1,6 +1,11 @@
-const detail = () => {
-    return(
-        <div className="" >detail</div>
-    )
-}
- export default detail;
+import "./detail.css";
+
+const Detail = () => {
+  return (
+    <div className="detail-container">
+      Detail
+    </div>
+  );
+};
+
+export default Detail;

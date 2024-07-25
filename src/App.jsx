@@ -1,9 +1,19 @@
+// import Chat from './components/chat/Chat';
+// import List from './components/list/List';
+// import Detail from './components/detail/Detail';
+
+import Chat from "./components/chat/chat"
+import Detail from "./components/detail/detail";
+import List from "./components/list/list";
+
 const App = () => {
   return (
-    <div className='container'>
-      
+    <div className="container">
+      <List />
+      <Chat />
+      <Detail />
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;

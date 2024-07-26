@@ -1,10 +1,7 @@
-// import Chat from './components/chat/Chat';
-// import List from './components/list/List';
-// import Detail from './components/detail/Detail';
-
-import Chat from "./components/chat/chat"
-import Detail from "./components/detail/detail";
-import List from "./components/list/list";
+import React from 'react';
+import Chat from './components/chat/Chat';
+import Detail from './components/detail/Detail';
+import List from './components/list/List';
 
 const App = () => {
   return (

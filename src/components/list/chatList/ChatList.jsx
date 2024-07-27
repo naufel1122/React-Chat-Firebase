@@ -24,7 +24,7 @@ const ChatList = () => {
     }, []);
 
     return (
-        <div 
+        <div
             ref={scrollRef}
             className={`chatList ${isScrolling ? '' : 'hidden-scrollbar'}`}
         >

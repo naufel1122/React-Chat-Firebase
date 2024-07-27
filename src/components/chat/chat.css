@@ -56,39 +56,76 @@
    height: 20px;
 }
 
+/* Smooth scrollbar styles */
 .center {
    padding: 20px;
    flex: 1;
-   overflow-y: scroll;
+   overflow-y: hidden; /* Initially hidden */
    display: flex;
    flex-direction: column;
    gap: 20px;
+   transition: overflow-y 0.5s ease; /* Smooth transition */
+   
+
+   .message{
+      max-width: 70%;
+      display: flex;
+      gap: 20px;
+
+      &.own{
+         align-self: flex-end;
+
+         .texts{
+            p{
+               background-color: #5183fe;
+            }
+         }
+      }
+      img{
+         width: 30px;
+         height: 30px;
+         border-radius: 50%;
+         object-fit: cover;
+      }
+
+      .texts{
+         flex: 1;
+         display: flex;
+         flex-direction: column;
+         gap: 5px;
+
+         p{
+            padding: 20px;
+            background-color: rgba(17, 25, 40, 0.3);
+            border-radius: 10px;
+         }
+         span{
+           font-size: 13px; 
+         }
+      }
+   }
+
 }
 
-/* .center {
-  padding: 20px;
-  flex: 1;
-  overflow-y: scroll;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.6) rgba(17, 25, 40, 0.5);
+.center.scroll-visible {
+   overflow-y: scroll; /* Show scrollbar */
 }
 
+/* Add custom scrollbar styling */
 .center::-webkit-scrollbar {
-  width: 8px;
-}
-
-.center::-webkit-scrollbar-track {
-  background: rgba(17, 25, 40, 0.5);
+   width: 12px;
 }
 
 .center::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.6);
-  border-radius: 10px;
-  border: 3px solid rgba(17, 25, 40, 0.5);
-} */
+   background-color: rgba(0, 0, 0, 0.5);
+   border-radius: 6px;
+}
+
+.center::-webkit-scrollbar-track {
+   background: rgba(0, 0, 0, 0.1);
+}
+
+
 
 .bottom {
    padding: 20px;
@@ -140,3 +177,5 @@
    border-radius: 5px;
    cursor: pointer;
 }
+
+

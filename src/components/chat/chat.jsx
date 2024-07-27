@@ -1,16 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './chat.css';
 import EmojiPicker from 'emoji-picker-react';
 
 const Chat = () => {
   const [open, setOpen] = useState(false);
-  const [text, setText] = useState();
-  const handleEmoji = e => {
-    setText((prev) => prev + e.emoji);
-    setOpen(false)
-  }
+  const [text, setText] = useState('');
+  const centerRef = useRef(null);
 
-  
+  const handleEmoji = (e) => {
+    setText((prev) => prev + e.emoji);
+    setOpen(false);
+  };
+
+  const handleScroll = () => {
+    if (centerRef.current) {
+      if (centerRef.current.scrollHeight > centerRef.current.clientHeight) {
+        centerRef.current.classList.add('scroll-visible');
+      } else {
+        centerRef.current.classList.remove('scroll-visible');
+      }
+    }
+  };
+
+  useEffect(() => {
+    handleScroll(); // Check on mount
+    window.addEventListener('resize', handleScroll); // Check on resize
+
+    return () => {
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, []);
 
   return (
     <div className='chat'>
@@ -28,7 +47,7 @@ const Chat = () => {
           <img src="./info.png" alt="" />
         </div>
       </div>
-      <div className="center">
+      <div className="center" ref={centerRef} onScroll={handleScroll} >
         <div className="message">
           <img src="./avatar.png" alt="" />
           <div className="texts">
@@ -77,6 +96,7 @@ const Chat = () => {
         </div>
         <div className="message own">
           <div className="texts">
+            <img src="" alt="" />
             <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nemo veniam odio beatae corporis autem. Corrupti accusamus placeat eum error in animi laudantium odit ad iusto! Voluptatibus magni delectus obcaecati porro.</p>
             <span>1 min ago</span>
           </div>
@@ -95,7 +115,7 @@ const Chat = () => {
             <EmojiPicker open={open} onEmojiClick={handleEmoji} />
           </div>
         </div>
-        <button className='sendButton' >Send</button>
+        <button className='sendButton'>Send</button>
       </div>
     </div>
   );

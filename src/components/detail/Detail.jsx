@@ -33,28 +33,28 @@ const Detail = () => {
                 <img src="https://images.pexels.com/photos/24405903/pexels-photo-24405903/free-photo-of-beach-umbrellas-and-sunbeds-in-resort-on-sea-shore.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="" />
                 <span>photo_2024_2.png</span>
               </div>
-              <img src="./download.png" alt="" />
+              <img src="./download.png" alt="" className='icon' />
             </div>
             <div className="photoItem">
               <div className="photoDetail">
                 <img src="https://images.pexels.com/photos/24405903/pexels-photo-24405903/free-photo-of-beach-umbrellas-and-sunbeds-in-resort-on-sea-shore.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="" />
                 <span>photo_2024_2.png</span>
               </div>
-              <img src="./download.png" alt="" />
+              <img src="./download.png" alt="" className='icon' />
             </div>
             <div className="photoItem">
               <div className="photoDetail">
                 <img src="https://images.pexels.com/photos/24405903/pexels-photo-24405903/free-photo-of-beach-umbrellas-and-sunbeds-in-resort-on-sea-shore.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="" />
                 <span>photo_2024_2.png</span>
               </div>
-              <img src="./download.png" alt="" />
+              <img src="./download.png" alt="" className='icon' />
             </div>
             <div className="photoItem">
               <div className="photoDetail">
                 <img src="https://images.pexels.com/photos/24405903/pexels-photo-24405903/free-photo-of-beach-umbrellas-and-sunbeds-in-resort-on-sea-shore.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="" />
                 <span>photo_2024_2.png</span>
               </div>
-              <img src="./download.png" alt="" />
+              <img src="./download.png" alt="" className='icon' />
             </div>
           </div>
         </div>
@@ -64,7 +64,8 @@ const Detail = () => {
             <img src="./arrowUp.png" alt="" />
           </div>
         </div>
-        <button>Block User</button>
+      <button>Block User</button>
+      <button className='logout'>Logout</button>
       </div>
     </div>
   );

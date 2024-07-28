@@ -1,0 +1,13 @@
+.addUser {
+    width: max-content;
+    height: max-content;
+    padding: 30px;
+    position: absolute;
+    border-radius: 10px;
+    background-color: rgba(17, 25, 40, 0.5);
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+}

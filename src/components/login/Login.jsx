@@ -1,4 +1,6 @@
-import React, { useState } from "react"; // Import useState
+import React, { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./login.css";
 
 const Login = () => {
@@ -7,7 +9,6 @@ const Login = () => {
     url: ""
   });
 
-  // Define the handleAvatar function properly
   const handleAvatar = (e) => {
     if (e.target.files[0]) {
       setAvatar({
@@ -17,18 +18,24 @@ const Login = () => {
     }
   };
 
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+  };
+
   return (
-    <div className='login'>
-      <div className="item">
+    <div className="login">
+      <ToastContainer /> {/* Add this line to include the ToastContainer */}
+      <div className="items">
         <h2>Welcome Back,</h2>
-        <form>
-           <input type="text" placeholder="Email" name="email" />
-           <input type="password" placeholder="Password" name="password" />
-           <button type="submit">Sign In</button> {/* Added type="submit" */}
+        <form onSubmit={handleLogin}>
+          <input type="text" placeholder="Email" name="email" />
+          <input type="password" placeholder="Password" name="password" />
+          <button type="submit">Sign In</button>
         </form>
       </div>
-      <div className="separator"></div> {/* Fixed typo */}
-      <div className="item">
+      <div className="separator"></div>
+      <div className="items">
         <h2>Create an Account</h2>
         <form>
           <label htmlFor="file">
@@ -44,7 +51,7 @@ const Login = () => {
           <input type="text" placeholder="Username" name="username" />
           <input type="text" placeholder="Email" name="email" />
           <input type="password" placeholder="Password" name="password" />
-          <button type="submit">Sign Up</button> {/* Changed to "Sign Up" */}
+          <button type="submit">Sign Up</button>
         </form>
       </div>
     </div>

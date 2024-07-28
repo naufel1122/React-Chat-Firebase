@@ -96,7 +96,7 @@ const Chat = () => {
         </div>
         <div className="message own">
           <div className="texts">
-            <img src="" alt="" />
+            <img src="https://images.pexels.com/photos/24405903/pexels-photo-24405903/free-photo-of-beach-umbrellas-and-sunbeds-in-resort-on-sea-shore.jpeg?auto=compress&cs=tinysrgb&w=600&lazy=load" alt="" />
             <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nemo veniam odio beatae corporis autem. Corrupti accusamus placeat eum error in animi laudantium odit ad iusto! Voluptatibus magni delectus obcaecati porro.</p>
             <span>1 min ago</span>
           </div>

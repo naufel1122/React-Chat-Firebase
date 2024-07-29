@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+// import { auth } from "firebase"; // Ensure the path is correct
 import "./login.css";
 
 const Login = () => {
@@ -18,14 +20,29 @@ const Login = () => {
     }
   };
 
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const { username, email, password } = Object.fromEntries(formData);
+
+    try {
+      console.log("Attempting to register user...");
+      const res = await createUserWithEmailAndPassword(auth, email, password);
+      console.log("User registered successfully", res);
+    } catch (err) {
+      console.error("Error during registration", err);
+      toast.error(err.message);
+    }
+  };
+
   const handleLogin = (e) => {
     e.preventDefault();
-
+    // Handle login logic here
   };
 
   return (
     <div className="login">
-      <ToastContainer /> {/* Add this line to include the ToastContainer */}
+      <ToastContainer />
       <div className="items">
         <h2>Welcome Back,</h2>
         <form onSubmit={handleLogin}>
@@ -37,7 +54,7 @@ const Login = () => {
       <div className="separator"></div>
       <div className="items">
         <h2>Create an Account</h2>
-        <form>
+        <form onSubmit={handleRegister}>
           <label htmlFor="file">
             <img src={avatar.url || "./avatar.png"} alt="Avatar Preview" />
             Upload an image

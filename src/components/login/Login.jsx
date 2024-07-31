@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from '../../lib/firebase'; // Adjusted import path
 import "./login.css";
 import { setDoc } from "firebase/firestore";
@@ -14,6 +14,8 @@ const Login = () => {
     url: ""
   });
 
+  const [loading, setLoading] = useState(false)
+
   const handleAvatar = (e) => {
     if (e.target.files[0]) {
       setAvatar({
@@ -25,6 +27,7 @@ const Login = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setLoading(true)
     const formData = new FormData(e.target);
 
     const { username, email, password } = Object.fromEntries(formData);
@@ -38,7 +41,7 @@ const Login = () => {
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
 
-      const imgURL = await  upload(avatar.file)
+      const imgURL = await upload(avatar.file)
 
       await setDoc(doc(db, "users", res.user.uid), {
         username,
@@ -48,22 +51,38 @@ const Login = () => {
         blocked: []
       });
       await setDoc(doc(db, "userchats", res.user.uid), {
-      chats: []
+        chats: []
       });
 
       toast.success("Account Created You can login now!")
 
       console.log('User created successfully:', res);
-      toast.success('User registered successfully');
+      // toast.success('User registered successfully');
     } catch (err) {
       console.error('Registration error:', err); // Log the actual error
       toast.error(err.message);
+    } finally {
+      setLoading(false)
     }
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Handle login logic here
+    setLoading(true);
+
+    const formData = new FormData(e.target);
+    const {email, password } = Object.fromEntries(formData);
+    console.log('Form Data:', { email, password });
+
+    try {
+      await signInWithEmailAndPassword(auth,email,password)
+    } catch (err) {
+      console.log(err);
+      toast.error(err.message)
+    }
+    finally {
+      setLoading(false)
+    }
   };
 
   return (
@@ -74,7 +93,7 @@ const Login = () => {
         <form onSubmit={handleLogin}>
           <input type="text" placeholder="Email" name="email" />
           <input type="password" placeholder="Password" name="password" />
-          <button type="submit">Sign In</button>
+          <button disabled={loading} >{loading ? "Loading" : "Sign In"}</button>
         </form>
       </div>
       <div className="separator"></div>
@@ -94,7 +113,7 @@ const Login = () => {
           <input type="text" placeholder="Username" name="username" />
           <input type="text" placeholder="Email" name="email" />
           <input type="password" placeholder="Password" name="password" />
-          <button type="submit">Sign Up</button>
+          <button disabled={loading} >{loading ? "Loading" : "Sign Up"}</button>
         </form>
       </div>
     </div>

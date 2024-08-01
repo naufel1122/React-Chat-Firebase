@@ -1,9 +1,30 @@
 import React, { useState, useEffect, useRef } from "react";
 import AddUser from "./addUser/addUser"; // Corrected path
 import "./chatList.css";
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "../../../lib/firebase";
+import { useUserStore } from "../../../lib/userStore";
+
 
 const ChatList = () => {
+  const [chats, setChats] = useState([]);
   const [addMode, setAddMode] = useState(false);
+
+const {currentUser} = useUserStore();
+
+useEffect(()=>{
+
+  const unSub = onSnapshot(doc(db, "userChats", currentUser.id), (doc) => {
+    setChats(doc.data())
+});
+return ()=>{
+  unSub()
+}
+
+},[currentUser.id])
+
+
+  
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollRef = useRef(null);
   let scrollTimeout = useRef(null);
@@ -42,7 +63,7 @@ const ChatList = () => {
         />
       </div>
       {addMode && <AddUser />} {/* AddUser component rendered conditionally */}
-      {[...Array(10)].map((_, index) => (
+      {[...Array(1)].map((_, index) => (
         <div key={index} className="item">
           <img src="./avatar.png" alt="Avatar" />
           <div className="texts">

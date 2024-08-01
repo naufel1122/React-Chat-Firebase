@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import AddUser from "./addUser/addUser"; // Corrected path
 import "./chatList.css";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
 import { useUserStore } from "../../../lib/userStore";
 
@@ -10,21 +10,35 @@ const ChatList = () => {
   const [chats, setChats] = useState([]);
   const [addMode, setAddMode] = useState(false);
 
-const {currentUser} = useUserStore();
+  const { currentUser } = useUserStore();
 
-useEffect(()=>{
+  useEffect(() => {
 
-  const unSub = onSnapshot(doc(db, "userChats", currentUser.id), (doc) => {
-    setChats(doc.data())
-});
-return ()=>{
-  unSub()
-}
+    const unSub = onSnapshot(doc(db, "userChats", currentUser.id), async (res) => {
+      const items = doc.data().chats;
+      const promises = item.map( async (item) =>{
+        const userDocRef = doc (db, "users" , item.receiverId) 
+        const userDocSnap = await getDoc(userDocRef);
 
-},[currentUser.id])
+        const user = userDocSnap.data()
+
+        return {...item, user}
+      });
+
+      const chatData = await Promises.all(promises)
+
+      setChats(chatData.sort((a,b)=> b.updatedAt - a.updatedAt))
 
 
-  
+    });
+    return () => {
+      unSub()
+    }
+
+  }, [currentUser.id])
+
+
+
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollRef = useRef(null);
   let scrollTimeout = useRef(null);
@@ -63,16 +77,18 @@ return ()=>{
         />
       </div>
       {addMode && <AddUser />} {/* AddUser component rendered conditionally */}
-      {[...Array(1)].map((_, index) => (
-        <div key={index} className="item">
-          <img src="./avatar.png" alt="Avatar" />
-          <div className="texts">
-            <span>Nabeegh</span>
-            <p>Hello</p>
-          </div>
-        </div>
-      ))}
+    {chats.map((chat)=>{
+
+      <div className="item" key={chat.chatId}  >
+      <img src="./avatar.png" alt="Avatar" />
+      <div className="texts">
+        <span>Nabeegh</span>
+        <p>{chat.lastMessage}</p>
+      </div>
     </div>
+      })}
+    
+    </div >
   );
 };
 

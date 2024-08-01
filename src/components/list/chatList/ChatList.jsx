@@ -1,43 +1,35 @@
 import React, { useState, useEffect, useRef } from "react";
-import AddUser from "./addUser/addUser"; // Corrected path
+import AddUser from "./addUser/addUser";
 import "./chatList.css";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
 import { useUserStore } from "../../../lib/userStore";
 
-
 const ChatList = () => {
   const [chats, setChats] = useState([]);
   const [addMode, setAddMode] = useState(false);
-
   const { currentUser } = useUserStore();
 
   useEffect(() => {
-
     const unSub = onSnapshot(doc(db, "userChats", currentUser.id), async (res) => {
-      const items = doc.data().chats;
-      const promises = item.map( async (item) =>{
-        const userDocRef = doc (db, "users" , item.receiverId) 
+      const items = res.data()?.chats || []; // Handle potential null or undefined data
+
+      const promises = items.map(async (item) => {
+        const userDocRef = doc(db, "users", item.receiverId);
         const userDocSnap = await getDoc(userDocRef);
+        const user = userDocSnap.data();
 
-        const user = userDocSnap.data()
-
-        return {...item, user}
+        return { ...item, user };
       });
 
-      const chatData = await Promises.all(promises)
-
-      setChats(chatData.sort((a,b)=> b.updatedAt - a.updatedAt))
-
-
+      const chatData = await Promise.all(promises);
+      setChats(chatData.sort((a, b) => b.updatedAt - a.updatedAt));
     });
+
     return () => {
-      unSub()
-    }
-
-  }, [currentUser.id])
-
-
+      unSub();
+    };
+  }, [currentUser.id]);
 
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollRef = useRef(null);
@@ -60,10 +52,7 @@ const ChatList = () => {
   }, []);
 
   return (
-    <div
-      ref={scrollRef}
-      className={`chatList ${isScrolling ? "" : "hidden-scrollbar"}`}
-    >
+    <div ref={scrollRef} className={`chatList ${isScrolling ? "" : "hidden-scrollbar"}`}>
       <div className="search">
         <div className="searchBar">
           <img src="./search.png" alt="Search Icon" />
@@ -77,18 +66,16 @@ const ChatList = () => {
         />
       </div>
       {addMode && <AddUser />} {/* AddUser component rendered conditionally */}
-    {chats.map((chat)=>{
-
-      <div className="item" key={chat.chatId}  >
-      <img src="./avatar.png" alt="Avatar" />
-      <div className="texts">
-        <span>Nabeegh</span>
-        <p>{chat.lastMessage}</p>
-      </div>
+      {chats.map((chat) => (
+        <div className="item" key={chat.chatId}>
+          <img src="./avatar.png" alt="Avatar" />
+          <div className="texts">
+            <span>{chat.user.name}</span>
+            <p>{chat.lastMessage}</p>
+          </div>
+        </div>
+      ))}
     </div>
-      })}
-    
-    </div >
   );
 };
 

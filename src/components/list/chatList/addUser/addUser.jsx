@@ -32,7 +32,7 @@ const AddUser = () => {
 
   const handleAdd = async () => {
     const chatRef = collection(db, "chats");
-    const userChatsRef = collection(db, "userChats");
+    const userChatsRef = collection(db, "userChats"); // Ensure consistent naming here
 
     try {
       const newChatRef = doc(chatRef);

@@ -1,4 +1,4 @@
-import { doc, collection, getDocs, query, serverTimestamp, setDoc, where, updateDoc } from 'firebase/firestore';
+import { doc, collection, getDocs, query, serverTimestamp, setDoc, where, updateDoc, getDoc } from 'firebase/firestore';
 import './addUser.css';
 import { arrayUnion } from 'firebase/firestore';
 import { db } from '../../../../lib/firebase';
@@ -55,15 +55,31 @@ const AddUser = () => {
         updatedAt: Date.now(),
       };
 
-      // Update the userChats collection for the found user
-      await updateDoc(doc(userChatsRef, user.id), {
-        chats: arrayUnion(chatDataForUser),
-      });
+      const userChatsDocRef = doc(userChatsRef, user.id);
+      const currentUserChatsDocRef = doc(userChatsRef, currentUser.id);
 
-      // Update the userChats collection for the current user
-      await updateDoc(doc(userChatsRef, currentUser.id), {
-        chats: arrayUnion(chatDataForCurrentUser),
-      });
+      // Check if documents exist, if not, create them
+      const userChatsDocSnap = await getDoc(userChatsDocRef);
+      if (userChatsDocSnap.exists()) {
+        await updateDoc(userChatsDocRef, {
+          chats: arrayUnion(chatDataForUser),
+        });
+      } else {
+        await setDoc(userChatsDocRef, {
+          chats: [chatDataForUser],
+        });
+      }
+
+      const currentUserChatsDocSnap = await getDoc(currentUserChatsDocRef);
+      if (currentUserChatsDocSnap.exists()) {
+        await updateDoc(currentUserChatsDocRef, {
+          chats: arrayUnion(chatDataForCurrentUser),
+        });
+      } else {
+        await setDoc(currentUserChatsDocRef, {
+          chats: [chatDataForCurrentUser],
+        });
+      }
 
     } catch (err) {
       console.error("Error adding chat:", err);

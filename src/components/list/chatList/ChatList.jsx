@@ -35,11 +35,15 @@ const ChatList = () => {
 
       setChats(chatData.sort((a, b) => b.updatedAt - a.updatedAt));
     });
-
     return () => {
       unSub();
     };
   }, [currentUser.id]);
+
+const handleSelect = async (chat)=>{
+
+}
+
 
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollRef = useRef(null);
@@ -61,6 +65,9 @@ const ChatList = () => {
     };
   }, []);
 
+
+
+
   return (
     <div ref={scrollRef} className={`chatList ${isScrolling ? "" : "hidden-scrollbar"}`}>
       <div className="search">
@@ -77,7 +84,7 @@ const ChatList = () => {
       </div>
       {addMode && <AddUser />} {/* AddUser component rendered conditionally */}
       {chats.map((chat) => (
-        <div className="item" key={chat.chatId}>
+        <div className="item" key={chat.chatId} onClick={()=>handleSelect(chat)}>
           <img src={chat.user?.avatar || "./avatar.png"} alt="Avatar" />
           <div className="texts">
             <span>{chat.user?.username || "Unknown User"}</span>

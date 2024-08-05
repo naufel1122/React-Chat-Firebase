@@ -4,11 +4,13 @@ import "./chatList.css";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
 import { useUserStore } from "../../../lib/userStore";
+import { useChatStore } from "../../../lib/chatStore";
 
 const ChatList = () => {
   const [chats, setChats] = useState([]);
   const [addMode, setAddMode] = useState(false);
   const { currentUser } = useUserStore();
+  const { changeChat } = useChatStore();
 
   useEffect(() => {
     const unSub = onSnapshot(doc(db, "userChats", currentUser.id), async (res) => {
@@ -41,6 +43,8 @@ const ChatList = () => {
   }, [currentUser.id]);
 
 const handleSelect = async (chat)=>{
+
+  changeChat(chat.chatId,chat.user);
 
 }
 

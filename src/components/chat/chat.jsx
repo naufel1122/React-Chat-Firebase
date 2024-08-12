@@ -36,7 +36,7 @@ const Chat = () => {
   }, [chatId]);
 
   const handleEmoji = (e) => {
-    setText((prev) => prev + e.emoji);
+    setText(prev => prev + e.emoji);
     setOpen(false);
   };
 
@@ -44,7 +44,6 @@ const Chat = () => {
     if (text.trim() === "") return;
 
     try {
-      // Update the messages in the chat
       await updateDoc(doc(db, "chats", chatId), {
         messages: arrayUnion({
           senderId: currentUser.id,
@@ -57,7 +56,7 @@ const Chat = () => {
 
       await Promise.all(
         userIDs.map(async (id) => {
-          const userChatRef = doc(db, "userchat", id);
+          const userChatRef = doc(db, "userChats", id); // Ensure consistency with document path
           const userChatsSnapshot = await getDoc(userChatRef);
 
           if (userChatsSnapshot.exists()) {
@@ -70,7 +69,7 @@ const Chat = () => {
               userChatsData.chats[chatIndex] = {
                 ...userChatsData.chats[chatIndex],
                 lastMessage: text,
-                isSeen: id === currentUser.id ? true : false,
+                isSeen: id === currentUser.id ? true : false, // Mark as seen for the sender
                 updatedAt: Date.now(),
               };
 
@@ -111,7 +110,7 @@ const Chat = () => {
     <div className="chat">
       <div className="top">
         <div className="user">
-          <img src="./avatar.png" alt="User Avatar" />
+          <img src={user.avatar || "./avatar.png"} alt="User Avatar" />
           <div className="texts">
             <span>{user.displayName || "Unknown User"}</span>
             <p>{user.status || "No status"}</p>
@@ -159,7 +158,7 @@ const Chat = () => {
           <img
             src="./emoji.png"
             alt="Emoji Picker"
-            onClick={() => setOpen((prev) => !prev)}
+            onClick={() => setOpen(prev => !prev)}
           />
           {open && (
             <div className="picker">

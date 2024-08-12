@@ -7,7 +7,7 @@ import { useChatStore } from "../../lib/chatStore";
 import { useUserStore } from "../../lib/userStore";
 
 const Chat = () => {
-  const [chat, setChat] = useState();
+  const [chat, setChat] = useState(null);
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
   const { currentUser } = useUserStore();
@@ -16,10 +16,12 @@ const Chat = () => {
   const endRef = useRef(null);
 
   useEffect(() => {
+    // Scroll to the bottom when new messages are added
     endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
+  }, [chat]); // Dependency on chat to trigger scroll when chat updates
 
   useEffect(() => {
+    // Subscribe to chat updates
     const unSub = onSnapshot(doc(db, "chats", chatId), (res) => {
       setChat(res.data());
     });
@@ -35,8 +37,10 @@ const Chat = () => {
   };
 
   const handleSend = async () => {
-    if (text === "") return;
+    if (text.trim() === "") return;
+
     try {
+      // Add message to the chat
       await updateDoc(doc(db, "chats", chatId), {
         messages: arrayUnion({
           senderId: currentUser.id,
@@ -47,39 +51,43 @@ const Chat = () => {
 
       const userIDs = [currentUser.id, user.id];
 
-      userIDs.forEach(async (id) => {
-        const userChatRef = doc(db, "userChats", id);
+      await Promise.all(userIDs.map(async (id) => {
+        const userChatRef = doc(db, "userchats", id);
         const userChatsSnapshot = await getDoc(userChatRef);
 
         if (userChatsSnapshot.exists()) {
           const userChatsData = userChatsSnapshot.data();
+          const chatIndex = userChatsData.chats.findIndex(c => c.chatId === chatId);
 
-          const chatIndex = userChatsData.chats.findIndex(
-            (c) => c.chatId === chatId
-          );
+          if (chatIndex !== -1) {
+            userChatsData.chats[chatIndex] = {
+              ...userChatsData.chats[chatIndex],
+              lastMessage: text,
+              isSeen: id === currentUser.id, // Update 'isSeen' based on sender
+              updatedAt: Date.now(),
+            };
 
-          userChatsData.chats[chatIndex].lastMessage = text;
-          userChatsData.chats[chatIndex].isSeen =
-            id === currentUser.id ? true : false;
-          userChatsData.chats[chatIndex].updatedAt = Date.now();
-
-          await updateDoc(userChatRef, {
-            chats: userChatsData.chats,
-          });
+            await updateDoc(userChatRef, {
+              chats: userChatsData.chats,
+            });
+          } else {
+            console.error(`Chat with ID ${chatId} not found in userChatsData for user ${id}`);
+          }
+        } else {
+          console.error(`User chat document not found for user ${id}`);
         }
-      });
+      }));
     } catch (err) {
-      console.log(err);
+      console.error("Error sending message or updating user chats:", err);
     }
   };
 
+
   const handleScroll = () => {
     if (centerRef.current) {
-      if (centerRef.current.scrollHeight > centerRef.current.clientHeight) {
-        centerRef.current.classList.add("scroll-visible");
-      } else {
-        centerRef.current.classList.remove("scroll-visible");
-      }
+      const isScrollVisible =
+        centerRef.current.scrollHeight > centerRef.current.clientHeight;
+      centerRef.current.classList.toggle("scroll-visible", isScrollVisible);
     }
   };
 
@@ -96,34 +104,41 @@ const Chat = () => {
     <div className="chat">
       <div className="top">
         <div className="user">
-          <img src="./avatar.png" alt="" />
+          <img src="./avatar.png" alt="User Avatar" />
           <div className="texts">
-            <span>Nabeegh</span>
-            <p>Lorem adipisicing elit. Consequuntur, totam?</p>
+            <span>{user.displayName || "Unknown User"}</span>
+            <p>{user.status || "No status"}</p>
           </div>
         </div>
         <div className="icons">
-          <img src="./phone.png" alt="" />
-          <img src="./video.png" alt="" />
-          <img src="./info.png" alt="" />
+          <img src="./phone.png" alt="Phone Icon" />
+          <img src="./video.png" alt="Video Icon" />
+          <img src="./info.png" alt="Info Icon" />
         </div>
       </div>
       <div className="center" ref={centerRef} onScroll={handleScroll}>
-        {chat?.messages?.map((message) => (
-          <div className="message own" key={message?.createdAt}>
-            <div className="texts">
-              {message.img && <img src={message.img} alt="" />}
-              <p>{message.text}</p>
+        {chat?.messages?.length > 0 ? (
+          chat.messages.map((message) => (
+            <div
+              className={`message ${message.senderId === currentUser.id ? "own" : ""}`}
+              key={message.createdAt.toString()}
+            >
+              <div className="texts">
+                {message.img && <img src={message.img} alt="Message Content" />}
+                <p>{message.text}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p>No messages yet</p>
+        )}
         <div ref={endRef}></div>
       </div>
       <div className="bottom">
         <div className="icons">
-          <img src="./img.png" alt="" />
-          <img src="./camera.png" alt="" />
-          <img src="./mic.png" alt="" />
+          <img src="./img.png" alt="Image Icon" />
+          <img src="./camera.png" alt="Camera Icon" />
+          <img src="./mic.png" alt="Mic Icon" />
         </div>
         <input
           type="text"
@@ -134,12 +149,14 @@ const Chat = () => {
         <div className="emoji">
           <img
             src="./emoji.png"
-            alt=""
+            alt="Emoji Picker"
             onClick={() => setOpen((prev) => !prev)}
           />
-          <div className="picker">
-            <EmojiPicker open={open} onEmojiClick={handleEmoji} />
-          </div>
+          {open && (
+            <div className="picker">
+              <EmojiPicker onEmojiClick={handleEmoji} />
+            </div>
+          )}
         </div>
         <button className="sendButton" onClick={handleSend}>
           Send

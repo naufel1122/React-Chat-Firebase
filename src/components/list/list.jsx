@@ -2,6 +2,7 @@ import React from 'react';
 import './list.css';
 import Userinfo from './userInfo/Userinfo';
 import ChatList from './chatList/ChatList';
+import Chat from '../chat/Chat';
 
 const List = () => {
   return (

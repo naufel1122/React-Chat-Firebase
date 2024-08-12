@@ -1,7 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./chat.css";
 import EmojiPicker from "emoji-picker-react";
-import { doc, getDoc, onSnapshot, updateDoc, arrayUnion } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  onSnapshot,
+  updateDoc,
+  arrayUnion,
+} from "firebase/firestore";
 import { db } from "../../lib/firebase";
 import { useChatStore } from "../../lib/chatStore";
 import { useUserStore } from "../../lib/userStore";
@@ -16,12 +22,10 @@ const Chat = () => {
   const endRef = useRef(null);
 
   useEffect(() => {
-    // Scroll to the bottom when new messages are added
     endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chat]); // Dependency on chat to trigger scroll when chat updates
+  }, [chat]);
 
   useEffect(() => {
-    // Subscribe to chat updates
     const unSub = onSnapshot(doc(db, "chats", chatId), (res) => {
       setChat(res.data());
     });
@@ -40,7 +44,7 @@ const Chat = () => {
     if (text.trim() === "") return;
 
     try {
-      // Add message to the chat
+      // Update the messages in the chat
       await updateDoc(doc(db, "chats", chatId), {
         messages: arrayUnion({
           senderId: currentUser.id,
@@ -51,37 +55,40 @@ const Chat = () => {
 
       const userIDs = [currentUser.id, user.id];
 
-      await Promise.all(userIDs.map(async (id) => {
-        const userChatRef = doc(db, "userchats", id);
-        const userChatsSnapshot = await getDoc(userChatRef);
+      await Promise.all(
+        userIDs.map(async (id) => {
+          const userChatRef = doc(db, "userchat", id);
+          const userChatsSnapshot = await getDoc(userChatRef);
 
-        if (userChatsSnapshot.exists()) {
-          const userChatsData = userChatsSnapshot.data();
-          const chatIndex = userChatsData.chats.findIndex(c => c.chatId === chatId);
+          if (userChatsSnapshot.exists()) {
+            const userChatsData = userChatsSnapshot.data();
+            const chatIndex = userChatsData.chats.findIndex(
+              (c) => c.chatId === chatId
+            );
 
-          if (chatIndex !== -1) {
-            userChatsData.chats[chatIndex] = {
-              ...userChatsData.chats[chatIndex],
-              lastMessage: text,
-              isSeen: id === currentUser.id, // Update 'isSeen' based on sender
-              updatedAt: Date.now(),
-            };
+            if (chatIndex !== -1) {
+              userChatsData.chats[chatIndex] = {
+                ...userChatsData.chats[chatIndex],
+                lastMessage: text,
+                isSeen: id === currentUser.id ? true : false,
+                updatedAt: Date.now(),
+              };
 
-            await updateDoc(userChatRef, {
-              chats: userChatsData.chats,
-            });
+              await updateDoc(userChatRef, {
+                chats: userChatsData.chats,
+              });
+            } else {
+              console.error(`Chat with ID ${chatId} not found in userChatsData for user ${id}`);
+            }
           } else {
-            console.error(`Chat with ID ${chatId} not found in userChatsData for user ${id}`);
+            console.error(`User chat document not found for user ${id}`);
           }
-        } else {
-          console.error(`User chat document not found for user ${id}`);
-        }
-      }));
+        })
+      );
     } catch (err) {
       console.error("Error sending message or updating user chats:", err);
     }
   };
-
 
   const handleScroll = () => {
     if (centerRef.current) {
@@ -120,7 +127,9 @@ const Chat = () => {
         {chat?.messages?.length > 0 ? (
           chat.messages.map((message) => (
             <div
-              className={`message ${message.senderId === currentUser.id ? "own" : ""}`}
+              className={`message ${
+                message.senderId === currentUser.id ? "own" : ""
+              }`}
               key={message.createdAt.toString()}
             >
               <div className="texts">

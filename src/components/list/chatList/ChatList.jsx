@@ -13,44 +13,43 @@ const ChatList = () => {
   const { chatId, changeChat } = useChatStore();
 
   console.log(chatId);
-  
 
   useEffect(() => {
-    const unSub = onSnapshot(doc(db, "userChats", currentUser.id), async (res) => {
-      const items = res.data()?.chats || []; // Retrieve chat items
-      console.log("Chat items retrieved:", items);
+    const unSub = onSnapshot(
+      doc(db, "userChats", currentUser.id),
+      async (res) => {
+        const items = res.data()?.chats || []; // Retrieve chat items
+        console.log("Chat items retrieved:", items);
 
-      const promises = items.map(async (item) => {
-        // Fetch the user's data based on receiverId
-        const userDocRef = doc(db, "users", item.receiverId);
-        const userDocSnap = await getDoc(userDocRef);
+        const promises = items.map(async (item) => {
+          // Fetch the user's data based on receiverId
+          const userDocRef = doc(db, "users", item.receiverId);
+          const userDocSnap = await getDoc(userDocRef);
 
-        if (userDocSnap.exists()) {
-          const user = userDocSnap.data();
-          console.log("User data fetched:", user);
-          return { ...item, user };
-        } else {
-          console.log("No user data found for receiverId:", item.receiverId);
-          return { ...item, user: null };
-        }
-      });
+          if (userDocSnap.exists()) {
+            const user = userDocSnap.data();
+            console.log("User data fetched:", user);
+            return { ...item, user };
+          } else {
+            console.log("No user data found for receiverId:", item.receiverId);
+            return { ...item, user: null };
+          }
+        });
 
-      const chatData = await Promise.all(promises);
-      console.log("Final chat data:", chatData);
+        const chatData = await Promise.all(promises);
+        console.log("Final chat data:", chatData);
 
-      setChats(chatData.sort((a, b) => b.updatedAt - a.updatedAt));
-    });
+        setChats(chatData.sort((a, b) => b.updatedAt - a.updatedAt));
+      }
+    );
     return () => {
       unSub();
     };
   }, [currentUser.id]);
 
-const handleSelect = async (chat)=>{
-
-  changeChat(chat.chatId,chat.user);
-
-}
-
+  const handleSelect = async (chat) => {
+    changeChat(chat.chatId, chat.user);
+  };
 
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollRef = useRef(null);
@@ -61,7 +60,7 @@ const handleSelect = async (chat)=>{
     clearTimeout(scrollTimeout.current);
     scrollTimeout.current = setTimeout(() => {
       setIsScrolling(false);
-    }, 1000); 
+    }, 1000);
   };
 
   useEffect(() => {
@@ -72,11 +71,11 @@ const handleSelect = async (chat)=>{
     };
   }, []);
 
-
-
-
   return (
-    <div ref={scrollRef} className={`chatList ${isScrolling ? "" : "hidden-scrollbar"}`}>
+    <div
+      ref={scrollRef}
+      className={`chatList ${isScrolling ? "" : "hidden-scrollbar"}`}
+    >
       <div className="search">
         <div className="searchBar">
           <img src="./search.png" alt="Search Icon" />
@@ -91,7 +90,14 @@ const handleSelect = async (chat)=>{
       </div>
       {addMode && <AddUser />} {/* AddUser component rendered conditionally */}
       {chats.map((chat) => (
-        <div className="item" key={chat.chatId} onClick={()=>handleSelect(chat)}>
+        <div
+          className="item"
+          key={chat.chatId}
+          onClick={() => handleSelect(chat)}
+          style={{
+            backgroundColor: chat?.isSeen ? "trasnparent" : "#518fe"
+          }}
+        >
           <img src={chat.user?.avatar || "./avatar.png"} alt="Avatar" />
           <div className="texts">
             <span>{chat.user?.username || "Unknown User"}</span>

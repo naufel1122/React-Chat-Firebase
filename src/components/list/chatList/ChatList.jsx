@@ -9,7 +9,7 @@ import { useChatStore } from "../../../lib/chatStore";
 const ChatList = () => {
   const [chats, setChats] = useState([]);
   const [addMode, setAddMode] = useState(false);
-  const [selectedChatId, setSelectedChatId] = useState(null); // Track selected chat
+  const [selectedChatId, setSelectedChatId] = useState(null); 
   const { currentUser } = useUserStore();
   const { chatId, changeChat } = useChatStore();
   const [isScrolling, setIsScrolling] = useState(false);
@@ -49,7 +49,6 @@ const ChatList = () => {
     };
   }, [currentUser.id]);
 
-  // Update chat as seen when a chat is selected
   useEffect(() => {
     if (chatId) {
       const updateChatSeenStatus = async () => {
@@ -58,9 +57,9 @@ const ChatList = () => {
 
         if (userChatsSnap.exists()) {
           const chats = userChatsSnap.data()?.chats || [];
-          const updatedChats = chats.map(chat => ({
+          const updatedChats = chats.map((chat) => ({
             ...chat,
-            isSeen: chat.chatId === chatId ? true : chat.isSeen
+            isSeen: chat.chatId === chatId ? true : chat.isSeen,
           }));
 
           await updateDoc(userChatsRef, { chats: updatedChats });
@@ -68,18 +67,38 @@ const ChatList = () => {
       };
 
       updateChatSeenStatus();
-      setSelectedChatId(chatId); // Update selected chat ID
+      setSelectedChatId(chatId); 
     }
   }, [chatId, currentUser.id]);
 
-  // Handle chat selection
-  const handleSelect = (chat) => {
-    
-    changeChat(chat.chatId, chat.user);
-    setSelectedChatId(chat.chatId); // Update selected chat ID
+  
+
+  const handleSelect = async (chat) => {
+    try {
+      const userChatsRef = doc(db, "userChats", currentUser.id);
+      const userChatsSnap = await getDoc(userChatsRef);
+
+      if (userChatsSnap.exists()) {
+        const userChats = userChatsSnap.data()?.chats || [];
+        const chatIndex = userChats.findIndex(
+          (item) => item.chatId === chat.chatId
+        );
+
+        if (chatIndex !== -1) {
+          userChats[chatIndex].isSeen = true;
+          await updateDoc(userChatsRef, { chats: userChats });
+          setChats(userChats);
+        }
+      }
+
+      // Change the selected chat and update the selectedChatId
+      changeChat(chat.chatId, chat.user);
+      setSelectedChatId(chat.chatId);
+    } catch (err) {
+      console.error("Error updating chat as seen:", err);
+    }
   };
 
-  // Handle scroll event to manage scrollbar visibility
   const handleScroll = () => {
     setIsScrolling(true);
     clearTimeout(scrollTimeout.current);
@@ -120,11 +139,12 @@ const ChatList = () => {
           key={chat.chatId}
           onClick={() => handleSelect(chat)}
           style={{
-            backgroundColor: chat.chatId === selectedChatId
-              ? "#518fe" // Highlight selected chat
-              : chat.isSeen
-              ? "transparent" // Normal color for seen chats
-              : "#dcdcdc" // Highlight color for unseen chats
+            backgroundColor:
+              chat.chatId === selectedChatId
+                ? "#518fe" // Highlight selected chat
+                : chat.isSeen
+                ? "transparent" // Normal color for seen chats
+                : "#5183f7", // Highlight color for unseen chats
           }}
         >
           <img src={chat.user?.avatar || "./avatar.png"} alt="Avatar" />

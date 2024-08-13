@@ -56,7 +56,7 @@ const Chat = () => {
 
       await Promise.all(
         userIDs.map(async (id) => {
-          const userChatRef = doc(db, "userChats", id); // Ensure consistency with document path
+          const userChatRef = doc(db, "userChats", id);
           const userChatsSnapshot = await getDoc(userChatRef);
 
           if (userChatsSnapshot.exists()) {
@@ -69,7 +69,7 @@ const Chat = () => {
               userChatsData.chats[chatIndex] = {
                 ...userChatsData.chats[chatIndex],
                 lastMessage: text,
-                isSeen: id === currentUser.id ? true : false, // Mark as seen for the sender
+                isSeen: id === currentUser.id ? true : false,
                 updatedAt: Date.now(),
               };
 
@@ -87,6 +87,8 @@ const Chat = () => {
     } catch (err) {
       console.error("Error sending message or updating user chats:", err);
     }
+
+    setText(""); // Clear input field after sending message
   };
 
   const handleScroll = () => {

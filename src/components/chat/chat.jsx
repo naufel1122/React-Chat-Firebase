@@ -13,8 +13,6 @@ import { db } from "../../lib/firebase";
 import { useChatStore } from "../../lib/chatStore";
 import { useUserStore } from "../../lib/userStore";
 
-
-
 const upload = async (file) => {
   const storage = getStorage();
   const storageRef = ref(storage, `images/${file.name}`);
@@ -23,13 +21,11 @@ const upload = async (file) => {
   return downloadURL;
 };
 
-
 const Chat = () => {
   const [chat, setChat] = useState(null);
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
-  
-  
+
   const [img, setImg] = useState({
     file: null,
     url: "",
@@ -70,19 +66,19 @@ const Chat = () => {
   const handleSend = async () => {
     if (text.trim() === "" && !img.file) return; // Ensure there's either text or an image to send
     let imgUrl = null;
-  
+
     try {
       if (img.file) {
         // Upload the image and get the URL
         imgUrl = await upload(img.file);
-  
+
         // Handle the case if imgUrl is not returned correctly
         if (!imgUrl) {
           console.error("Image upload failed");
           return;
         }
       }
-  
+
       // Update the chat document with the new message
       await updateDoc(doc(db, "chats", chatId), {
         messages: arrayUnion({
@@ -92,20 +88,20 @@ const Chat = () => {
           ...(imgUrl && { img: imgUrl }), // Include image URL if it exists
         }),
       });
-  
+
       // Update the user chats for both users
       const userIDs = [currentUser.id, user.id];
       await Promise.all(
         userIDs.map(async (id) => {
           const userChatRef = doc(db, "userChats", id);
           const userChatsSnapshot = await getDoc(userChatRef);
-  
+
           if (userChatsSnapshot.exists()) {
             const userChatsData = userChatsSnapshot.data();
             const chatIndex = userChatsData.chats.findIndex(
               (c) => c.chatId === chatId
             );
-  
+
             if (chatIndex !== -1) {
               userChatsData.chats[chatIndex] = {
                 ...userChatsData.chats[chatIndex],
@@ -113,7 +109,7 @@ const Chat = () => {
                 isSeen: id === currentUser.id ? true : false,
                 updatedAt: Date.now(),
               };
-  
+
               await updateDoc(userChatRef, {
                 chats: userChatsData.chats,
               });
@@ -130,7 +126,7 @@ const Chat = () => {
     } catch (err) {
       console.error("Error sending message or updating user chats:", err);
     }
-  
+
     // Reset image and text states
     setImg({
       file: null,
@@ -138,8 +134,6 @@ const Chat = () => {
     });
     setText("");
   };
-  
-
   const handleScroll = () => {
     if (centerRef.current) {
       const isScrollVisible =

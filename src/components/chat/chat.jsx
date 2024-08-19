@@ -31,7 +31,8 @@ const Chat = () => {
     url: "",
   });
   const { currentUser } = useUserStore();
-  const { chatId, user } = useChatStore();
+  const { chatId, user, isCurrentUserBlocked, isReceiverBlocked } =
+    useChatStore();
   const centerRef = useRef(null);
   const endRef = useRef(null);
 
@@ -155,10 +156,11 @@ const Chat = () => {
     <div className="chat">
       <div className="top">
         <div className="user">
-          <img src={user.avatar || "./avatar.png"} alt="User Avatar" />
+          <img src={user?.avatar || "./avatar.png"} alt="User Avatar" />
           <div className="texts">
-            <span>{user.displayName || "Unknown User"}</span>
-            <p>{user.status || "No status"}</p>
+            <span>{user?.username || "Unknown User"}</span>
+            {/* <p>{user.status || "No status"}</p> */}
+            <p>Lorem ipsum dolor sit amet.</p>
           </div>
         </div>
         <div className="icons">
@@ -213,6 +215,7 @@ const Chat = () => {
           placeholder="Type a message..."
           value={text}
           onChange={(e) => setText(e.target.value)}
+          disabled={isCurrentUserBlocked || isReceiverBlocked}
         />
         <div className="emoji">
           <img
@@ -226,7 +229,7 @@ const Chat = () => {
             </div>
           )}
         </div>
-        <button className="sendButton" onClick={handleSend}>
+        <button className="sendButton" onClick={handleSend} disabled={isCurrentUserBlocked || isReceiverBlocked}>
           Send
         </button>
       </div>
